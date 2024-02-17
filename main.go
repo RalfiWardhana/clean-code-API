@@ -10,6 +10,7 @@ import (
 
 func main() {
 	router := gin.Default()
+	config.InitConfig()
 	cfg := config.ConnectDB()
 	log.Println(cfg)
 
@@ -18,6 +19,6 @@ func main() {
 	routing.OrderRoute(router)
 	routing.UserRoute(router)
 
-	router.Run("localhost:9000")
+	router.Run("localhost:" + config.CONFIG["MS_PORT"])
 
 }

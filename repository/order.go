@@ -40,24 +40,22 @@ func (db *orderRepository) GetAllOrder() ([]entity.Order, error) {
 	}
 
 	return order_list, nil
-
 }
 
 func (db *orderRepository) GetOrder(id int) ([]entity.Order, error) {
 	order_list := []entity.Order{}
 
-	queryBuilder := db.MySQL.Model(entity.Order{})
-
-	queryBuilder = queryBuilder.Where("id = ?", id)
-
-	if err := queryBuilder.Order("id DESC").Scan(&order_list).Error; err != nil {
-		log.Println("Get order failed")
-
-		return order_list, err
+	if err := db.MySQL.Joins("JOIN doctors ON orders.id_doctor = doctors.id").
+		Joins("JOIN patients ON orders.id_patient = patients.id").
+		Select("orders.*, doctors.Doctor_name,patients.Patient_name").
+		Where("orders.id = ?", id).
+		Order("orders.id DESC").
+		Find(&order_list).Error; err != nil {
+		log.Println("Get all order failed")
+		return []entity.Order{}, err
 	}
 
 	return order_list, nil
-
 }
 
 func (db *orderRepository) CreateOrder(order_request dto.Order_request) (entity.Order, error) {
